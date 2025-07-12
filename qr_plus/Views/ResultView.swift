@@ -8,7 +8,9 @@ struct ResultView: View {
             Text(item.content)
                 .font(.headline)
                 .multilineTextAlignment(.center)
+
             ShareLink(item: item.content) {
+
                 Label("Share", systemImage: "square.and.arrow.up")
             }
         }
