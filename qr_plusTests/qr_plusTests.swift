@@ -9,6 +9,7 @@ struct qr_plusTests {
         store.add(HistoryItem(content: "B", type: .text))
         store.add(HistoryItem(content: "C", type: .text))
         store.add(HistoryItem(content: "D", type: .text))
+
         #expect(store.items.count == 3)
         #expect(store.items.first?.content == "D")
         #expect(store.items.last?.content == "B")
@@ -24,4 +25,5 @@ struct qr_plusTests {
         #expect(viewModel.classify("WIFI:S:MyWiFi;P:123456;;") == .wifi)
         #expect(viewModel.classify("Hello") == .text)
     }
+
 }

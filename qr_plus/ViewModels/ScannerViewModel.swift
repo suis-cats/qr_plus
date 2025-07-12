@@ -26,9 +26,11 @@ class ScannerViewModel: NSObject, ObservableObject {
 
     func startRunning() {
         guard !session.isRunning else { return }
+
         DispatchQueue.global(qos: .userInitiated).async { [session] in
             session.startRunning()
         }
+
     }
 
     func stopRunning() {
@@ -36,6 +38,7 @@ class ScannerViewModel: NSObject, ObservableObject {
         DispatchQueue.global(qos: .userInitiated).async { [session] in
             session.stopRunning()
         }
+
     }
 
     private func configureSession() {
@@ -69,6 +72,7 @@ extension ScannerViewModel: AVCaptureMetadataOutputObjectsDelegate {
               let value = object.stringValue else { return }
 
         isScanning = false
+
         let type = classify(value)
         let item = HistoryItem(content: value, type: type)
         lastScanned = item
@@ -94,3 +98,4 @@ extension ScannerViewModel {
         return .text
     }
 }
+
