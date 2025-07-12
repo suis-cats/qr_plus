@@ -111,3 +111,5 @@ extension ScannerViewModel {
         return .text
     }
 }
+
+
