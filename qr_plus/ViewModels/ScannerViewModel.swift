@@ -5,21 +5,27 @@ import SwiftUI
 class ScannerViewModel: NSObject, ObservableObject {
     @Published var lastScanned: HistoryItem?
     @Published var isScanning = true
+    @Published var permissionDenied = false
 
     private let session = AVCaptureSession()
     var captureSession: AVCaptureSession { session }
     private var historyStore: HistoryStore
+    private var sessionConfigured = false
 
     init(historyStore: HistoryStore) {
         self.historyStore = historyStore
         super.init()
-        configureSession()
     }
 
+
     func startRunning() {
-        guard !session.isRunning else { return }
-        DispatchQueue.global(qos: .userInitiated).async { [session] in
-            session.startRunning()
+        checkPermissions { [weak self] granted in
+            guard granted, let self else { return }
+            if !self.sessionConfigured { self.configureSession() }
+            guard !self.session.isRunning else { return }
+            DispatchQueue.global(qos: .userInitiated).async { [session = self.session] in
+                session.startRunning()
+            }
         }
     }
 
@@ -51,6 +57,25 @@ class ScannerViewModel: NSObject, ObservableObject {
         }
 
         session.commitConfiguration()
+        sessionConfigured = true
+    }
+
+    private func checkPermissions(completion: @escaping (Bool) -> Void) {
+        let status = AVCaptureDevice.authorizationStatus(for: .video)
+        switch status {
+        case .authorized:
+            completion(true)
+        case .notDetermined:
+            AVCaptureDevice.requestAccess(for: .video) { granted in
+                DispatchQueue.main.async {
+                    self.permissionDenied = !granted
+                    completion(granted)
+                }
+            }
+        default:
+            permissionDenied = true
+            completion(false)
+        }
     }
 }
 
@@ -86,3 +111,5 @@ extension ScannerViewModel {
         return .text
     }
 }
+
+

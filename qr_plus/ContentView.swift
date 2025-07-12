@@ -36,6 +36,9 @@ struct ContentView: View {
                     Label("History", systemImage: "clock")
                 }
             }
+            .alert("Camera access is required to scan QR codes. Please enable it in Settings.", isPresented: $scannerViewModel.permissionDenied) {
+                Button("OK", role: .cancel) {}
+            }
         }
     }
 }
