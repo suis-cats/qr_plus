@@ -1,17 +1,16 @@
-//
-//  qr_plusTests.swift
-//  qr_plusTests
-//
-//  Created by Suis on 2025/07/13.
-//
-
 import Testing
 @testable import qr_plus
 
 struct qr_plusTests {
-
-    @Test func example() async throws {
-        // Write your test here and use APIs like `#expect(...)` to check expected conditions.
+    @Test
+    func testHistoryStoreLimit() async throws {
+        let store = HistoryStore(limit: 3)
+        store.add(HistoryItem(content: "A", type: "QR"))
+        store.add(HistoryItem(content: "B", type: "QR"))
+        store.add(HistoryItem(content: "C", type: "QR"))
+        store.add(HistoryItem(content: "D", type: "QR"))
+        #expect(store.items.count == 3)
+        #expect(store.items.first?.content == "D")
+        #expect(store.items.last?.content == "B")
     }
-
 }
