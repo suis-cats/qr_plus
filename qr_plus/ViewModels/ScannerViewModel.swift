@@ -7,7 +7,7 @@ class ScannerViewModel: NSObject, ObservableObject {
     @Published var isScanning = true
 
     private let session = AVCaptureSession()
-    private var previewLayer: AVCaptureVideoPreviewLayer?
+    var captureSession: AVCaptureSession { session }
     private var historyStore: HistoryStore
 
     init(historyStore: HistoryStore) {
@@ -16,21 +16,11 @@ class ScannerViewModel: NSObject, ObservableObject {
         configureSession()
     }
 
-    func getPreviewLayer() -> AVCaptureVideoPreviewLayer? {
-        if previewLayer == nil {
-            previewLayer = AVCaptureVideoPreviewLayer(session: session)
-            previewLayer?.videoGravity = .resizeAspectFill
-        }
-        return previewLayer
-    }
-
     func startRunning() {
         guard !session.isRunning else { return }
-
         DispatchQueue.global(qos: .userInitiated).async { [session] in
             session.startRunning()
         }
-
     }
 
     func stopRunning() {
@@ -38,7 +28,6 @@ class ScannerViewModel: NSObject, ObservableObject {
         DispatchQueue.global(qos: .userInitiated).async { [session] in
             session.stopRunning()
         }
-
     }
 
     private func configureSession() {
@@ -72,7 +61,6 @@ extension ScannerViewModel: AVCaptureMetadataOutputObjectsDelegate {
               let value = object.stringValue else { return }
 
         isScanning = false
-
         let type = classify(value)
         let item = HistoryItem(content: value, type: type)
         lastScanned = item
@@ -98,4 +86,3 @@ extension ScannerViewModel {
         return .text
     }
 }
-

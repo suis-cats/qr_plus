@@ -1,22 +1,27 @@
 import SwiftUI
 import AVFoundation
 
+final class CameraPreview: UIView {
+    override class var layerClass: AnyClass {
+        AVCaptureVideoPreviewLayer.self
+    }
+
+    var previewLayer: AVCaptureVideoPreviewLayer {
+        layer as! AVCaptureVideoPreviewLayer
+    }
+}
+
 struct ScannerView: UIViewRepresentable {
     @ObservedObject var viewModel: ScannerViewModel
 
-    func makeUIView(context: Context) -> UIView {
-        let view = UIView(frame: .zero)
-        if let layer = viewModel.getPreviewLayer() {
-            layer.frame = view.bounds
-            layer.videoGravity = .resizeAspectFill
-            view.layer.addSublayer(layer)
-        }
+    func makeUIView(context: Context) -> CameraPreview {
+        let view = CameraPreview()
+        view.previewLayer.session = viewModel.captureSession
+        view.previewLayer.videoGravity = .resizeAspectFill
         return view
     }
 
-    func updateUIView(_ uiView: UIView, context: Context) {
-        if let layer = viewModel.getPreviewLayer() {
-            layer.frame = uiView.bounds
-        }
+    func updateUIView(_ uiView: CameraPreview, context: Context) {
+        uiView.previewLayer.connection?.videoOrientation = .portrait
     }
 }
