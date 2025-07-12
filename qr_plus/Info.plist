@@ -5,6 +5,10 @@
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>remote-notification</string>
-	</array>
+</array>
+    <key>NSCameraUsageDescription</key>
+    <string>QuickQR requires access to the camera to scan QR codes.</string>
+    <key>NSPhotoLibraryUsageDescription</key>
+    <string>QuickQR uses your photo library to detect QR codes in images.</string>
 </dict>
 </plist>
