@@ -5,11 +5,16 @@ struct HistoryView: View {
 
     var body: some View {
         List(historyStore.items) { item in
-            VStack(alignment: .leading) {
+
+            VStack(alignment: .leading, spacing: 4) {
                 Text(item.content)
                     .font(.body)
-                Text(item.date, style: .date)
+                Text(item.type.rawValue)
                     .font(.caption)
+                    .foregroundColor(.secondary)
+                Text(item.date, style: .date)
+                    .font(.caption2)
+
                     .foregroundColor(.secondary)
             }
         }

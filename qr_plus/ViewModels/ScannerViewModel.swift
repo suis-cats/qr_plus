@@ -26,12 +26,19 @@ class ScannerViewModel: NSObject, ObservableObject {
 
     func startRunning() {
         guard !session.isRunning else { return }
-        session.startRunning()
+
+        DispatchQueue.global(qos: .userInitiated).async { [session] in
+            session.startRunning()
+        }
+
     }
 
     func stopRunning() {
         guard session.isRunning else { return }
-        session.stopRunning()
+        DispatchQueue.global(qos: .userInitiated).async { [session] in
+            session.stopRunning()
+        }
+
     }
 
     private func configureSession() {
@@ -65,8 +72,30 @@ extension ScannerViewModel: AVCaptureMetadataOutputObjectsDelegate {
               let value = object.stringValue else { return }
 
         isScanning = false
-        let item = HistoryItem(content: value, type: "QR")
+
+        let type = classify(value)
+        let item = HistoryItem(content: value, type: type)
         lastScanned = item
         historyStore.add(item)
     }
 }
+
+extension ScannerViewModel {
+    func classify(_ value: String) -> QRContentType {
+        let lower = value.lowercased()
+        if lower.hasPrefix("http://") || lower.hasPrefix("https://") {
+            return .url
+        }
+        if lower.hasPrefix("tel:") {
+            return .phone
+        }
+        if lower.hasPrefix("mailto:") || (value.contains("@") && value.contains(".")) {
+            return .email
+        }
+        if lower.hasPrefix("wifi:") {
+            return .wifi
+        }
+        return .text
+    }
+}
+
