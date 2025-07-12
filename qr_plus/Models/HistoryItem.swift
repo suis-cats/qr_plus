@@ -7,7 +7,6 @@ enum QRContentType: String, Codable {
     case wifi = "WiFi"
     case text = "Text"
 }
-
 struct HistoryItem: Identifiable, Codable, Equatable {
     let id: UUID
     let content: String

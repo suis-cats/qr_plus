@@ -16,7 +16,6 @@ class ScannerViewModel: NSObject, ObservableObject {
         configureSession()
     }
 
-
     func startRunning() {
         guard !session.isRunning else { return }
         DispatchQueue.global(qos: .userInitiated).async { [session] in
