@@ -1,55 +1,40 @@
-//
-//  ContentView.swift
-//  qr_plus
-//
-//  Created by Suis on 2025/07/13.
-//
-
 import SwiftUI
-import SwiftData
+import AVFoundation
 
 struct ContentView: View {
-    @Environment(\.modelContext) private var modelContext
-    @Query private var items: [Item]
+    @StateObject private var historyStore: HistoryStore
+    @StateObject private var scannerViewModel: ScannerViewModel
+
+    init() {
+        let store = HistoryStore()
+        _historyStore = StateObject(wrappedValue: store)
+        _scannerViewModel = StateObject(wrappedValue: ScannerViewModel(historyStore: store))
+    }
 
     var body: some View {
-        NavigationSplitView {
-            List {
-                ForEach(items) { item in
-                    NavigationLink {
-                        Text("Item at \(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))")
-                    } label: {
-                        Text(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))
+        NavigationStack {
+            VStack {
+                ScannerView(viewModel: scannerViewModel)
+                    .onAppear { scannerViewModel.startRunning() }
+                    .onDisappear { scannerViewModel.stopRunning() }
+                    .overlay(alignment: .bottom) {
+                        if let item = scannerViewModel.lastScanned {
+                            NavigationLink(destination: ResultView(item: item)) {
+                                Text("Show Result")
+                                    .padding()
+                                    .background(Color.black.opacity(0.7))
+                                    .foregroundColor(.white)
+                                    .cornerRadius(8)
+                            }
+                            .padding()
+                        }
                     }
-                }
-                .onDelete(perform: deleteItems)
             }
+            .navigationTitle("QuickQR")
             .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    EditButton()
+                NavigationLink(destination: HistoryView(historyStore: historyStore)) {
+                    Label("History", systemImage: "clock")
                 }
-                ToolbarItem {
-                    Button(action: addItem) {
-                        Label("Add Item", systemImage: "plus")
-                    }
-                }
-            }
-        } detail: {
-            Text("Select an item")
-        }
-    }
-
-    private func addItem() {
-        withAnimation {
-            let newItem = Item(timestamp: Date())
-            modelContext.insert(newItem)
-        }
-    }
-
-    private func deleteItems(offsets: IndexSet) {
-        withAnimation {
-            for index in offsets {
-                modelContext.delete(items[index])
             }
         }
     }
@@ -57,5 +42,4 @@ struct ContentView: View {
 
 #Preview {
     ContentView()
-        .modelContainer(for: Item.self, inMemory: true)
 }
